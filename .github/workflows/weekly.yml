@@ -23,9 +23,9 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -49,4 +49,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs
           git commit -m "Week ${{ steps.build.outputs.week }} edition"
+          # Pick up anything pushed from your computer while this was running
+          git pull --rebase
           git push
