@@ -140,6 +140,7 @@ def main():
     print(f"Done. Saved to {out}")
     if missing:
         print("  WARNING: still missing some teams. Check the issue before sending it.")
+        sys.exit(1)  # stops the automatic run so a bad issue never gets published
 
 
 if __name__ == "__main__":

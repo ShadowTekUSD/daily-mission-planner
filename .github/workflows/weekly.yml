@@ -1,0 +1,52 @@
+name: Weekly Paper
+
+on:
+  schedule:
+    # GitHub uses UTC. 8 a.m. Pacific is 15:00 UTC in summer and 16:00 UTC
+    # in winter, so it fires at both; run_weekly.py skips the early one.
+    - cron: "0 15 * * 2"
+    - cron: "0 16 * * 2"
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "Week number (leave blank to auto-detect)"
+        required: false
+      force:
+        description: "Re-do a week that's already published"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install libraries
+        run: pip install -r requirements.txt
+
+      - name: Build this week's paper
+        id: build
+        env:
+          LEAGUE_ID: ${{ secrets.LEAGUE_ID }}
+          SEASON: ${{ secrets.SEASON }}
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          SWID: ${{ secrets.SWID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python run_weekly.py ${{ inputs.week }} ${{ inputs.force && 'force' || '' }}
+
+      - name: Publish to the website
+        if: steps.build.outputs.week != ''
+        run: |
+          git config user.name "Daily Mission Planner Bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git commit -m "Week ${{ steps.build.outputs.week }} edition"
+          git push
