@@ -1,0 +1,4 @@
+espn-api
+anthropic
+python-dotenv
+markdown
